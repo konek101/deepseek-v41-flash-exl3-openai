@@ -5,8 +5,8 @@ set -euo pipefail
 : "${ENGRAM_DIR:=/engram-src}"
 : "${PORT:=3500}"
 : "${SERVED_MODEL_NAME:=DeepSeek-v4.1-Flash-EXL3}"
-: "${TP:=2}"
-: "${NNODES:=2}"
+: "${TP:=4}"
+: "${NNODES:=1}"
 : "${NODE_RANK:=0}"
 : "${MASTER_ADDR:=127.0.0.1}"
 : "${MASTER_PORT:=29521}"
@@ -16,6 +16,16 @@ set -euo pipefail
 : "${MAX_NUM_BATCHED_TOKENS:=2048}"
 : "${GPU_MEM_UTIL:=0.85}"
 : "${LANGUAGE_MODEL_ONLY:=0}"
+: "${GPU_COUNT:=4}"
+
+if command -v nvidia-smi >/dev/null 2>&1 && [[ "${SKIP_GPU_CHECK:-0}" != "1" ]]; then
+  detected_gpus=$(nvidia-smi --query-gpu=name --format=csv,noheader | sed '/^$/d' | wc -l)
+  if (( detected_gpus < GPU_COUNT )); then
+    echo "ERROR: expected at least ${GPU_COUNT} visible NVIDIA GPUs, found ${detected_gpus}" >&2
+    exit 1
+  fi
+  echo "Detected ${detected_gpus} NVIDIA GPUs; using tensor parallel size ${TP}"
+fi
 
 if [[ ! -f "${MODEL_DIR}/config.json" ]]; then
   echo "ERROR: ${MODEL_DIR}/config.json is missing; mount the EXL3 checkpoint at /model" >&2
