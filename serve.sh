@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-: "${MODEL_DIR:=/model}"
-: "${ENGRAM_DIR:=/engram-src}"
+: "${MODEL_DIR:=/opt/dsv41/model}"
+: "${ENGRAM_DIR:=/opt/dsv41/engram}"
 : "${PORT:=3500}"
 : "${SERVED_MODEL_NAME:=DeepSeek-v4.1-Flash-EXL3}"
 : "${TP:=4}"

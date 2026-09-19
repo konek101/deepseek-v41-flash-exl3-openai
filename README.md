@@ -4,7 +4,7 @@ This image targets Linux x86_64 systems with NVIDIA Blackwell GPUs and wraps the
 [`dealignai/DeepSeek-V4.1-Flash-UNCENSORED-EXL3-2.9bpw`](https://huggingface.co/dealignai/DeepSeek-V4.1-Flash-UNCENSORED-EXL3-2.9bpw).
 It exposes the vLLM OpenAI-compatible API on port **3500**.
 
-The checkpoint is approximately 197 GiB. The default deployment is one host with four 96-GB-class Blackwell GPUs (`TP=4`, `NNODES=1`). On first start, the container downloads the EXL3 checkpoint and the two required Engram shards into `/model` and `/engram-src`. Use persistent writable volumes; the Engram shards add approximately 190 GiB. Set `HF_TOKEN` if your Hugging Face account requires authentication.
+The checkpoint is approximately 197 GiB. The default deployment is one host with four 96-GB-class Blackwell GPUs (`TP=4`, `NNODES=1`). On first start, the container downloads the EXL3 checkpoint and the two required Engram shards into its internal `/opt/dsv41` volume. Set `HF_TOKEN` if your Hugging Face account requires authentication.
 
 ## Run
 
@@ -14,8 +14,6 @@ On the head node:
 docker run --rm --gpus all --network host --ipc=host --shm-size 32g \
   -e MASTER_ADDR=127.0.0.1 -e NODE_RANK=0 \
   -e HF_TOKEN=your_huggingface_token \
-  -v dsv41-model:/model \
-  -v dsv41-engram:/engram-src \
   ghcr.io/konek101/deepseek-v41-flash-exl3-openai:latest
 ```
 

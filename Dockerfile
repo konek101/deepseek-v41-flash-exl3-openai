@@ -8,8 +8,8 @@ COPY serve.sh /usr/local/bin/serve.sh
 RUN chmod 0755 /usr/local/bin/serve.sh
 
 ENV PORT=3500 \
-    MODEL_DIR=/model \
-    ENGRAM_DIR=/engram-src \
+    MODEL_DIR=/opt/dsv41/model \
+    ENGRAM_DIR=/opt/dsv41/engram \
     SERVED_MODEL_NAME=DeepSeek-v4.1-Flash-EXL3 \
     TP=4 \
     NNODES=1 \
@@ -25,4 +25,5 @@ ENV PORT=3500 \
     LANGUAGE_MODEL_ONLY=0
 
 EXPOSE 3500
+VOLUME ["/opt/dsv41"]
 ENTRYPOINT ["/usr/local/bin/serve.sh"]
