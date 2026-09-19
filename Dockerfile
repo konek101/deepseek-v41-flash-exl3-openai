@@ -2,6 +2,8 @@
 # The upstream image contains the SM121 kernels and vLLM/ExLlamaV3 overlay.
 FROM vllm/vllm-openai:nightly
 
+RUN pip install --no-cache-dir "huggingface_hub[hf_transfer]"
+
 COPY serve.sh /usr/local/bin/serve.sh
 RUN chmod 0755 /usr/local/bin/serve.sh
 
@@ -12,6 +14,7 @@ ENV PORT=3500 \
     TP=4 \
     NNODES=1 \
     GPU_COUNT=4 \
+    AUTO_DOWNLOAD=1 \
     NODE_RANK=0 \
     MASTER_PORT=29521 \
     SPEC_METHOD=dspark \

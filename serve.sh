@@ -17,6 +17,33 @@ set -euo pipefail
 : "${GPU_MEM_UTIL:=0.85}"
 : "${LANGUAGE_MODEL_ONLY:=0}"
 : "${GPU_COUNT:=4}"
+: "${AUTO_DOWNLOAD:=1}"
+: "${MODEL_REPO:=dealignai/DeepSeek-V4.1-Flash-UNCENSORED-EXL3-2.9bpw}"
+: "${ENGRAM_REPO:=deepseek-ai/DeepSeek-V4.1-Flash}"
+
+download_assets() {
+  command -v hf >/dev/null 2>&1 || {
+    echo "ERROR: Hugging Face CLI is missing from the runtime image" >&2
+    exit 1
+  }
+  mkdir -p "${MODEL_DIR}" "${ENGRAM_DIR}"
+  if [[ ! -f "${MODEL_DIR}/config.json" || ! -f "${MODEL_DIR}/model.safetensors.index.json" ]]; then
+    echo "Downloading EXL3 checkpoint ${MODEL_REPO} into ${MODEL_DIR} ..."
+    hf download "${MODEL_REPO}" --local-dir "${MODEL_DIR}" ${HF_DOWNLOAD_ARGS:-}
+  fi
+  if [[ ! -f "${ENGRAM_DIR}/model-00047-of-00048.safetensors" || ! -f "${ENGRAM_DIR}/model-00048-of-00048.safetensors" ]]; then
+    echo "Downloading Engram shards from ${ENGRAM_REPO} into ${ENGRAM_DIR} ..."
+    hf download "${ENGRAM_REPO}" \
+      model-00047-of-00048.safetensors \
+      model-00048-of-00048.safetensors \
+      model.safetensors.index.json \
+      --local-dir "${ENGRAM_DIR}"
+  fi
+}
+
+if [[ "${AUTO_DOWNLOAD}" == "1" ]]; then
+  download_assets
+fi
 
 if command -v nvidia-smi >/dev/null 2>&1 && [[ "${SKIP_GPU_CHECK:-0}" != "1" ]]; then
   detected_gpus=$(nvidia-smi --query-gpu=name --format=csv,noheader | sed '/^$/d' | wc -l)
